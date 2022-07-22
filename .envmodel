@@ -1,0 +1,5 @@
+PORT = yournumber
+TOKEN_SECRET = "yourvalue"
+MDB = "yourvalue"
+MDB_USER = "yourvalue"
+MDB_PASSWORD = "yourvalue"

@@ -3,8 +3,6 @@ const fs = require('fs');
 
 exports.createSauce = (req, res, next) => {
   const sauceObject = JSON.parse(req.body.sauce);
-  /* delete sauceObject._id; */
-  /* delete sauceObject._userId; */
   const sauce = new Sauce({
       ...sauceObject,
       userId: req.auth.userId,
@@ -42,13 +40,11 @@ exports.modifySauce = (req, res, next) => {
       imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
   } : { ...req.body };
 
-  /* delete sauceObject._userId; */
   Sauce.findOne({_id: req.params.id})
       .then((sauce) => {
           if (sauce.userId != req.auth.userId) {
               res.status(401).json({ message : 'Not authorized'});
           } else {
-              console.log("sauceobjet à la mise à jour", sauceObject);
               Sauce.updateOne({ _id: req.params.id}, { ...sauceObject, _id: req.params.id})
               .then(() => res.status(200).json({message : 'Objet modifié!'}))
               .catch(error => res.status(401).json({ error }));
@@ -60,7 +56,7 @@ exports.modifySauce = (req, res, next) => {
 };
 
 exports.deleteSauce = (req, res, next) => {
-  Sauce.findOne({ _id: req.params.id})
+  Sauce.findOne({ _id: req.params.id })
       .then(sauce => {
           if (sauce.userId != req.auth.userId) {
               res.status(401).json({message: 'Not authorized'});
@@ -93,59 +89,57 @@ exports.getAllSauces = (req, res, next) => {
 };
 
 exports.likeSauce = (req, res, next) => {
-  
   Sauce.findOne({ _id: req.params.id })
-      .then(sauce => {
-        console.log("sauce trouvée à taguer en like : ", sauce)
-        const numLikeSent = req.body.like;
-        console.log('like =', numLikeSent);
-        const likeUser = req.body.userId;
-        console.log("likeUser", likeUser);
-        console.log("usersDisliked", sauce.usersDisliked);
-        if (numLikeSent == -1){//dislike
-          if ((sauce.usersDisliked.length == 1) || (sauce.usersDisliked.includes(likeUser) == false)) {//user n'a jamais disliké cette sauce
-            sauce.dislikes +=1;console.log("dislike", sauce.dislikes);
-            sauce.usersDisliked.push(likeUser);
-            console.log("new tableau", sauce.usersDisliked)
-            if (sauce.usersLiked.includes(likeUser)) {
-              sauce.usersLiked = sauce.usersLiked.filter(function(f) { return f !== likeUser });
-              sauce.likes += -1
-            }
-          }else{
-            res.status(403).json({ message : 'vous avez déjà unliké'});
-          }
-          console.log("sauce à la mise à jour", sauce);
-          Sauce.updateOne({ _id: req.params.id }, {$set: {likes: sauce.likes, dislikes: sauce.dislikes, usersLiked: sauce.usersLiked, usersDisliked: sauce.usersDisliked}})//mise à jour dans tous les cas
-          .then(
-            console.log("mise à jour")
-          )
-        };
-      })
-      .catch( error => {
-        res.status(500).json({ error });
-      })
-        /* else if numLikeSent = 0 {
-          if l'user est dans usersLiked{
-            effacer user et oter 1 like
-          }
-          else ifl'user est dans usersliked{
-            effacer user et oter un dislike
-          }
-          else error
-        }
-        else if numLikeSent = 1 {}
-          comptabiliser like ou dislike et ajout ou retrait userid au tableau usersliked ou usersdisliked
-          .then(() => { res.status(200).json({message: ''})})
-          .catch(error)
-        } */
-      /*
-      }) */
+    .then(sauce => {
+      const numLikeSent = req.body.like;
+      const likeUser = req.body.userId;
+      if (likeUser == sauce.userId){
+        res.status(403).json({ message : 'vous ne pouvez pas liker ou unliker'});
+        return;
+      };
       
-}
+      //--------------------------------------------
+      if (numLikeSent == -1){//dislike
+        if ((sauce.usersDisliked.length == 1) || (sauce.usersDisliked.includes(likeUser) == false)) {//user n'a jamais disliké cette sauce
+          sauce.dislikes +=1;
+          sauce.usersDisliked.push(likeUser);
+          if (sauce.usersLiked.includes(likeUser)) {
+            sauce.usersLiked = sauce.usersLiked.filter(function(f) { return f !== likeUser });
+            sauce.likes += -1
+          }
+        }else{
+          res.status(403).json({ message : 'vous avez déjà unliké' });
+        }
+      };
 
+      //---------------------------------------------------
+      if (numLikeSent == 0){//undislike ou unlike
+        if ((sauce.usersDisliked.length !== 1) && (sauce.usersDisliked.includes(likeUser) == true)) {//user a disliké cette sauce
+          sauce.dislikes += -1;
+          sauce.usersDisliked = sauce.usersDisliked.filter(function(f) { return f !== likeUser });
+        }else if ((sauce.usersLiked.length !== 1) && (sauce.usersLiked.includes(likeUser) == true)) {//user a liké cette sauce
+          sauce.likes += -1;
+          sauce.usersLiked = sauce.usersLiked.filter(function(f) { return f !== likeUser });
+        };
+      };
 
-/* likes: { type: Number },
-  dislikes: { type: Number},
-  usersLiked: [ { type: String } ],
-  usersDisliked: [ { type: String } ] 
-  Sauce.cidessus */
+      //------------------------------------------------------
+      if (numLikeSent == 1){//like
+        if ((sauce.usersLiked.length == 1) || (sauce.usersLiked.includes(likeUser) == false)) {//user n'a jamais liké cette sauce
+          sauce.likes +=1;
+          sauce.usersLiked.push(likeUser);
+          if (sauce.usersDisliked.includes(likeUser)) {
+            sauce.usersDisliked = sauce.usersDisliked.filter(function(f) { return f !== likeUser });
+            sauce.dislikes += -1
+          }
+        }else{
+          res.status(403).json({ message : 'vous avez déjà liké'});
+        }
+      };
+      Sauce.updateOne({ _id: req.params.id }, {$set: {likes: sauce.likes, dislikes: sauce.dislikes, usersLiked: sauce.usersLiked, usersDisliked: sauce.usersDisliked}})//mise à jour dans tous les cas
+      .then(() => res.status(200).json({message : 'likes/dislikes de la sauce bien mis à jour'}))
+      })
+    .catch( error => {
+      res.status(500).json({ error })
+    })
+};
