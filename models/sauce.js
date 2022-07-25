@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose');//import library pour connection à la base de données
 
-const sauceSchema = mongoose.Schema({
+const sauceSchema = mongoose.Schema({//schema de modèle d'un objet sauce en base de données
   userId: { type: String, required: true },
   name: { type: String, required: true },
   manufacturer: {type: String, required: true},

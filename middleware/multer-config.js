@@ -1,6 +1,6 @@
-const multer = require('multer');
+const multer = require('multer'); //import module multer pour transport de fichier
 
-const MIME_TYPES = {
+const MIME_TYPES = {//formats acceptés
   'image/jpg': 'jpg',
   'image/jpeg': 'jpg',
   'image/png': 'png'

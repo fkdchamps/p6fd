@@ -1,3 +1,4 @@
+/* fichier des routes d'API attendues sur requête pour gérer des sauces */
 const express = require("express");
 const auth = require('../middleware/auth');
 const router = express.Router();

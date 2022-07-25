@@ -1,3 +1,4 @@
+/* contrôle format @mail */
 module.exports = (req, res, next) => {
    
         let varEmail = req.body.email;

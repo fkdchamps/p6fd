@@ -1,3 +1,4 @@
+/* import des modules */
 const express = require('express');
 
 const mongoose = require('mongoose');
@@ -5,14 +6,15 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 
-
+/* import des routes d'API */
 const saucesRoutes = require('./routes/sauces');
 
 const userRoutes = require('./routes/user');
 
-const path = require('path');
+const path = require('path');//import module path pour gérer le chemin d'accès aux images
 
-mongoose.connect(`mongodb+srv://${process.env.MDB_USER}:${process.env.MDB_PASSWORD}@${process.env.MDB}?retryWrites=true&w=majority`,
+/* connection à la base de données */
+mongoose.connect(process.env.MDB_CONNECT,
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
@@ -21,13 +23,14 @@ mongoose.connect(`mongodb+srv://${process.env.MDB_USER}:${process.env.MDB_PASSWO
 const app = express();
 app.use(express.json());
 
+/* definition des requêtes */
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
   next();
 });
-
+/* mise en place des routes */
 app.use('/api/sauces', saucesRoutes);
 app.use("/api/auth", userRoutes);
 app.use('/images', express.static(path.join(__dirname, 'images')));
