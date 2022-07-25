@@ -1,5 +1,8 @@
+//variables environnement
+
 PORT = yournumber
+
 TOKEN_SECRET = "yourvalue"
-MDB = "yourvalue"
-MDB_USER = "yourvalue"
-MDB_PASSWORD = "yourvalue"
+
+MDB_CONNECT = "your complete connection url"
+
