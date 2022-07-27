@@ -6,7 +6,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 
-/* import des routes d'API */
+/* import des chemins de fichiers de méthodes de routes d'API */
 const saucesRoutes = require('./routes/sauces');
 
 const userRoutes = require('./routes/user');
@@ -30,7 +30,7 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
   next();
 });
-/* mise en place des routes */
+/* mise en place des correspondances de routes */
 app.use('/api/sauces', saucesRoutes);
 app.use("/api/auth", userRoutes);
 app.use('/images', express.static(path.join(__dirname, 'images')));

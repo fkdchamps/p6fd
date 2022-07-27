@@ -1,3 +1,4 @@
+/* config générale du serveur http */
 const http = require('http');
 const app = require('./app');
 

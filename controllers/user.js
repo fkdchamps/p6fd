@@ -29,7 +29,7 @@ exports.login = (req, res, next) => {
           if (!user) {
               return res.status(401).json({ message: 'Paire login/mot de passe incorrecte'});
           }
-          bcrypt.compare(req.body.password, user.password)//test "héridité génétique absolue passClair/hash bcrypt" ;-)
+          bcrypt.compare(req.body.password, user.password)//test "correspondance absolue passClair/hash bcrypt" ;-)
               .then(valid => {
                   if (!valid) {
                       return res.status(401).json({ message: 'Paire login/mot de passe incorrecte' });
